@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'axes',
+    'psycopg2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,6 +49,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # AxesMiddleware should be the last middleware in the MIDDLEWARE list.
+    # It only formats user lockout messages and renders Axes lockout responses
+    # on failed user authentication attempts from login views.
+    # If you do not want Axes to override the authentication response
+    # you can skip installing the middleware and use your own views.
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'sole_market.urls'
@@ -75,8 +84,12 @@ WSGI_APPLICATION = 'sole_market.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db_sole_market',
+        'USER': 'postgres',
+        'PASSWORD': '121015',
+        'HOST': '127.0.0.1',
+        'PORT': '5432'
     }
 }
 
@@ -118,3 +131,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# login attempts Django-axes configuration
+SILENCED_SYSTEM_CHECKS = ['axes.W003']
+AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
+AXES_USE_USER_AGENT = True
+AXES_LOCKOUT_TEMPLATE = 'users/account_block.html'
+AXES_RESET_ON_SUCCESS = True
